@@ -9,61 +9,13 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="作者/来源" prop="author">
+      <el-form-item label="作者/来源" prop="author" label-width="80px">
         <el-input
           v-model="queryParams.author"
           placeholder="请输入作者/来源"
           clearable
           @keyup.enter="handleQuery"
         />
-      </el-form-item>
-      <el-form-item label="文章摘要" prop="resume">
-        <el-input
-          v-model="queryParams.resume"
-          placeholder="请输入文章摘要"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="发布时间" prop="publishTime">
-        <el-date-picker clearable
-          v-model="queryParams.publishTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择发布时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="是否推荐：1.推荐；2.不推荐" prop="recommend">
-        <el-input
-          v-model="queryParams.recommend"
-          placeholder="请输入是否推荐：1.推荐；2.不推荐"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="浏览数量" prop="browseNum">
-        <el-input
-          v-model="queryParams.browseNum"
-          placeholder="请输入浏览数量"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="创建时间" prop="createdTime">
-        <el-date-picker clearable
-          v-model="queryParams.createdTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择创建时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="更新时间" prop="updatedTime">
-        <el-date-picker clearable
-          v-model="queryParams.updatedTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择更新时间">
-        </el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -115,12 +67,12 @@
 
     <el-table v-loading="loading" :data="loanList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
+      <el-table-column label="序号" type="index" align="center" prop="id" />
       <el-table-column label="文章标题" align="center" prop="title" />
       <el-table-column label="作者/来源" align="center" prop="author" />
-      <el-table-column label="文章摘要" align="center" prop="resume" />
-      <el-table-column label="正文内容" align="center" prop="content" />
-      <el-table-column label="图片文件id" align="center" prop="image" width="100">
+      <el-table-column label="文章摘要" align="center" prop="resume" show-overflow-tooltip class-name="description-column" />
+      <el-table-column label="正文内容" align="center" prop="content" show-overflow-tooltip class-name="description-column" />
+      <el-table-column label="图片" align="center" prop="image" width="100">
         <template #default="scope">
           <image-preview :src="scope.row.image" :width="50" :height="50"/>
         </template>
@@ -130,19 +82,17 @@
           <span>{{ parseTime(scope.row.publishTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="发布状态：1.已发布；2.未发布" align="center" prop="publishStatus" />
-      <el-table-column label="是否推荐：1.推荐；2.不推荐" align="center" prop="recommend" />
+      <el-table-column label="发布状态" align="center" prop="publishStatus">
+        <template #default="scope">
+          <dict-tag :options="publish_status" :value="scope.row.publishStatus ? scope.row.publishStatus.split(',') : []"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="是否推荐" align="center" prop="recommend">
+        <template #default="scope">
+          <dict-tag :options="recommend" :value="scope.row.recommend ? scope.row.recommend.split(',') : []"/>
+        </template>
+      </el-table-column>
       <el-table-column label="浏览数量" align="center" prop="browseNum" />
-      <el-table-column label="创建时间" align="center" prop="createdTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createdTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updatedTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.updatedTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['farm:loan:edit']">修改</el-button>
@@ -174,7 +124,7 @@
         <el-form-item label="正文内容">
           <editor v-model="form.content" :min-height="192"/>
         </el-form-item>
-        <el-form-item label="图片文件id" prop="image">
+        <el-form-item label="图片" prop="image">
           <image-upload v-model="form.image"/>
         </el-form-item>
         <el-form-item label="发布时间" prop="publishTime">
@@ -185,27 +135,28 @@
             placeholder="请选择发布时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="是否推荐：1.推荐；2.不推荐" prop="recommend">
-          <el-input v-model="form.recommend" placeholder="请输入是否推荐：1.推荐；2.不推荐" />
+        <el-form-item label="发布状态" prop="publishStatus">
+          <el-checkbox-group v-model="form.publishStatus">
+            <el-checkbox
+              v-for="dict in publish_status"
+              :key="dict.value"
+              :label="dict.value">
+              {{dict.label}}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="是否推荐" prop="recommend">
+          <el-checkbox-group v-model="form.recommend">
+            <el-checkbox
+              v-for="dict in recommend"
+              :key="dict.value"
+              :label="dict.value">
+              {{dict.label}}
+            </el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
         <el-form-item label="浏览数量" prop="browseNum">
           <el-input v-model="form.browseNum" placeholder="请输入浏览数量" />
-        </el-form-item>
-        <el-form-item label="创建时间" prop="createdTime">
-          <el-date-picker clearable
-            v-model="form.createdTime"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="请选择创建时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="更新时间" prop="updatedTime">
-          <el-date-picker clearable
-            v-model="form.updatedTime"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="请选择更新时间">
-          </el-date-picker>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -218,10 +169,22 @@
   </div>
 </template>
 
+<style scoped>
+.description-column .cell {
+  /* 确保单行显示 */
+  white-space: nowrap;
+  /* 超出部分隐藏 */
+  overflow: hidden;
+  /* 超出部分用...表示 */
+  text-overflow: ellipsis;
+}
+</style>
+
 <script setup name="Loan">
 import { listLoan, getLoan, delLoan, addLoan, updateLoan } from "@/api/farm/loan";
 
 const { proxy } = getCurrentInstance();
+const { recommend, publish_status } = proxy.useDict('recommend', 'publish_status');
 
 const loanList = ref([]);
 const open = ref(false);
@@ -240,15 +203,6 @@ const data = reactive({
     pageSize: 10,
     title: null,
     author: null,
-    resume: null,
-    content: null,
-    image: null,
-    publishTime: null,
-    publishStatus: null,
-    recommend: null,
-    browseNum: null,
-    createdTime: null,
-    updatedTime: null
   },
   rules: {
     title: [
@@ -288,8 +242,8 @@ function reset() {
     content: null,
     image: null,
     publishTime: null,
-    publishStatus: null,
-    recommend: null,
+    publishStatus: [],
+    recommend: [],
     browseNum: null,
     createdTime: null,
     updatedTime: null
@@ -329,6 +283,8 @@ function handleUpdate(row) {
   const _id = row.id || ids.value
   getLoan(_id).then(response => {
     form.value = response.data;
+    form.value.publishStatus = form.value.publishStatus.split(",");
+    form.value.recommend = form.value.recommend.split(",");
     open.value = true;
     title.value = "修改信贷信息";
   });
@@ -338,6 +294,8 @@ function handleUpdate(row) {
 function submitForm() {
   proxy.$refs["loanRef"].validate(valid => {
     if (valid) {
+      form.value.publishStatus = form.value.publishStatus.join(",");
+      form.value.recommend = form.value.recommend.join(",");
       if (form.value.id != null) {
         updateLoan(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
