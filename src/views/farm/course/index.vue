@@ -9,18 +9,10 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="文章摘要" prop="resume">
-        <el-input
-          v-model="queryParams.resume"
-          placeholder="请输入文章摘要"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="专家Id" prop="expertId">
+      <el-form-item label="专家" prop="expertId">
         <el-input
           v-model="queryParams.expertId"
-          placeholder="请输入专家Id"
+          placeholder="请输入专家"
           clearable
           @keyup.enter="handleQuery"
         />
@@ -34,68 +26,14 @@
         />
       </el-form-item>
       <el-form-item label="所属分类" prop="serviceCatgoryCode">
-        <el-input
-          v-model="queryParams.serviceCatgoryCode"
-          placeholder="请输入所属分类"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="所属品类" prop="produceCategoryId">
-        <el-input
-          v-model="queryParams.produceCategoryId"
-          placeholder="请输入所属品类"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="视频文件" prop="video">
-        <el-input
-          v-model="queryParams.video"
-          placeholder="请输入视频文件"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="是否推荐 ：1.推荐；2.不推荐" prop="recommend">
-        <el-input
-          v-model="queryParams.recommend"
-          placeholder="请输入是否推荐 ：1.推荐；2.不推荐"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="发布时间" prop="publishTime">
-        <el-date-picker clearable
-          v-model="queryParams.publishTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择发布时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="浏览数量" prop="browseNum">
-        <el-input
-          v-model="queryParams.browseNum"
-          placeholder="请输入浏览数量"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="创建时间" prop="createTime">
-        <el-date-picker clearable
-          v-model="queryParams.createTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择创建时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="更新时间" prop="updateTime">
-        <el-date-picker clearable
-          v-model="queryParams.updateTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择更新时间">
-        </el-date-picker>
+        <el-select v-model="queryParams.serviceCatgoryCode" placeholder="请选择所属分类" clearable>
+          <el-option
+            v-for="dict in sevice_catgory"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -147,39 +85,45 @@
 
     <el-table v-loading="loading" :data="courseList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键id" align="center" prop="id" />
+      <el-table-column label="序号" type="index" align="center" prop="id" />
       <el-table-column label="课程标题" align="center" prop="title" />
-      <el-table-column label="文章摘要" align="center" prop="resume" />
-      <el-table-column label="专家Id" align="center" prop="expertId" />
+      <el-table-column label="文章摘要" align="center" prop="resume" show-overflow-tooltip class-name="description-column" />
+      <el-table-column label="专家" align="center" prop="expertId" />
       <el-table-column label="所属领域" align="center" prop="fieldCode" />
       <el-table-column label="课程封面图片" align="center" prop="image" width="100">
         <template #default="scope">
           <image-preview :src="scope.row.image" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="正文" align="center" prop="content" />
-      <el-table-column label="所属分类" align="center" prop="serviceCatgoryCode" />
+      <el-table-column label="正文" align="center" prop="content" show-overflow-tooltip class-name="description-column" />
+      <el-table-column label="所属分类" align="center" prop="serviceCatgoryCode">
+        <template #default="scope">
+          <dict-tag :options="sevice_catgory" :value="scope.row.serviceCatgoryCode"/>
+        </template>
+      </el-table-column>
       <el-table-column label="所属品类" align="center" prop="produceCategoryId" />
       <el-table-column label="视频文件" align="center" prop="video" />
-      <el-table-column label="课程类型 1.图文课程 2.视频课程 3.短视频课程" align="center" prop="type" />
-      <el-table-column label="是否推荐 ：1.推荐；2.不推荐" align="center" prop="recommend" />
-      <el-table-column label="发布状态 ：1.已发布；2.未发布" align="center" prop="publishStatus" />
+      <el-table-column label="课程类型" align="center" prop="type">
+        <template #default="scope">
+          <dict-tag :options="course_type" :value="scope.row.type"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="是否推荐" align="center" prop="recommend">
+        <template #default="scope">
+          <dict-tag :options="recommend" :value="scope.row.recommend"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="发布状态 " align="center" prop="publishStatus">
+        <template #default="scope">
+          <dict-tag :options="publish_status" :value="scope.row.publishStatus"/>
+        </template>
+      </el-table-column>
       <el-table-column label="发布时间" align="center" prop="publishTime" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.publishTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="浏览数量" align="center" prop="browseNum" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['farm:course:edit']">修改</el-button>
@@ -205,8 +149,8 @@
         <el-form-item label="文章摘要" prop="resume">
           <el-input v-model="form.resume" placeholder="请输入文章摘要" />
         </el-form-item>
-        <el-form-item label="专家Id" prop="expertId">
-          <el-input v-model="form.expertId" placeholder="请输入专家Id" />
+        <el-form-item label="专家" prop="expertId">
+          <el-input v-model="form.expertId" placeholder="请输入专家" />
         </el-form-item>
         <el-form-item label="所属领域" prop="fieldCode">
           <el-input v-model="form.fieldCode" placeholder="请输入所属领域" />
@@ -218,7 +162,14 @@
           <editor v-model="form.content" :min-height="192"/>
         </el-form-item>
         <el-form-item label="所属分类" prop="serviceCatgoryCode">
-          <el-input v-model="form.serviceCatgoryCode" placeholder="请输入所属分类" />
+          <el-select v-model="form.serviceCatgoryCode" placeholder="请选择所属分类">
+            <el-option
+              v-for="dict in sevice_catgory"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="所属品类" prop="produceCategoryId">
           <el-input v-model="form.produceCategoryId" placeholder="请输入所属品类" />
@@ -226,8 +177,35 @@
         <el-form-item label="视频文件" prop="video">
           <el-input v-model="form.video" placeholder="请输入视频文件" />
         </el-form-item>
-        <el-form-item label="是否推荐 ：1.推荐；2.不推荐" prop="recommend">
-          <el-input v-model="form.recommend" placeholder="请输入是否推荐 ：1.推荐；2.不推荐" />
+        <el-form-item label="课程类型" prop="type">
+          <el-select v-model="form.type" placeholder="请选择课程类型">
+            <el-option
+              v-for="dict in course_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否推荐" prop="recommend">
+          <el-select v-model="form.recommend" placeholder="请选择是否推荐">
+            <el-option
+              v-for="dict in recommend"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="发布状态 " prop="publishStatus">
+          <el-select v-model="form.publishStatus" placeholder="请选择发布状态 ">
+            <el-option
+              v-for="dict in publish_status"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="发布时间" prop="publishTime">
           <el-date-picker clearable
@@ -251,10 +229,22 @@
   </div>
 </template>
 
+<style scoped>
+.description-column .cell {
+  /* 确保单行显示 */
+  white-space: nowrap;
+  /* 超出部分隐藏 */
+  overflow: hidden;
+  /* 超出部分用...表示 */
+  text-overflow: ellipsis;
+}
+</style>
+
 <script setup name="Course">
 import { listCourse, getCourse, delCourse, addCourse, updateCourse } from "@/api/farm/course";
 
 const { proxy } = getCurrentInstance();
+const { course_type, recommend, publish_status, sevice_catgory } = proxy.useDict('course_type', 'recommend', 'publish_status', 'sevice_catgory');
 
 const courseList = ref([]);
 const open = ref(false);
@@ -272,28 +262,16 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     title: null,
-    resume: null,
     expertId: null,
     fieldCode: null,
-    image: null,
-    content: null,
     serviceCatgoryCode: null,
-    produceCategoryId: null,
-    video: null,
-    type: null,
-    recommend: null,
-    publishStatus: null,
-    publishTime: null,
-    browseNum: null,
-    createTime: null,
-    updateTime: null
   },
   rules: {
     title: [
       { required: true, message: "课程标题不能为空", trigger: "blur" }
     ],
     expertId: [
-      { required: true, message: "专家Id不能为空", trigger: "blur" }
+      { required: true, message: "专家不能为空", trigger: "blur" }
     ],
   }
 });
