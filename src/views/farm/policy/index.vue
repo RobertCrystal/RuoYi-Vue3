@@ -17,54 +17,6 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="文章摘要" prop="resume">
-        <el-input
-          v-model="queryParams.resume"
-          placeholder="请输入文章摘要"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="发布时间" prop="publishTime">
-        <el-date-picker clearable
-          v-model="queryParams.publishTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择发布时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="是否推荐：1.推荐；2.不推荐" prop="recommend">
-        <el-input
-          v-model="queryParams.recommend"
-          placeholder="请输入是否推荐：1.推荐；2.不推荐"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="浏览数量" prop="browseNum">
-        <el-input
-          v-model="queryParams.browseNum"
-          placeholder="请输入浏览数量"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="创建时间" prop="createdTime">
-        <el-date-picker clearable
-          v-model="queryParams.createdTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择创建时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="更新时间" prop="updatedTime">
-        <el-date-picker clearable
-          v-model="queryParams.updatedTime"
-          type="date"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择更新时间">
-        </el-date-picker>
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -115,29 +67,27 @@
 
     <el-table v-loading="loading" :data="policyList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
+      <el-table-column label="序号" type="index" align="center" prop="id" />
       <el-table-column label="文章标题" align="center" prop="title" />
       <el-table-column label="作者/来源" align="center" prop="author" />
-      <el-table-column label="文章摘要" align="center" prop="resume" />
-      <el-table-column label="正文内容" align="center" prop="content" />
+      <el-table-column label="文章摘要" align="center" prop="resume" show-overflow-tooltip class-name="description-column" />
+      <el-table-column label="正文内容" align="center" prop="content" show-overflow-tooltip class-name="description-column" />
       <el-table-column label="发布时间" align="center" prop="publishTime" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.publishTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="发布状态：1.已发布；2.未发布" align="center" prop="publishStatus" />
-      <el-table-column label="是否推荐：1.推荐；2.不推荐" align="center" prop="recommend" />
+      <el-table-column label="发布状态" align="center" prop="publishStatus">
+        <template #default="scope">
+          <dict-tag :options="publish_status" :value="scope.row.publishStatus"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="是否推荐" align="center" prop="recommend">
+        <template #default="scope">
+          <dict-tag :options="recommend" :value="scope.row.recommend"/>
+        </template>
+      </el-table-column>
       <el-table-column label="浏览数量" align="center" prop="browseNum" />
-      <el-table-column label="创建时间" align="center" prop="createdTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createdTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updatedTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.updatedTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['farm:policy:edit']">修改</el-button>
@@ -177,27 +127,28 @@
             placeholder="请选择发布时间">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="是否推荐：1.推荐；2.不推荐" prop="recommend">
-          <el-input v-model="form.recommend" placeholder="请输入是否推荐：1.推荐；2.不推荐" />
+        <el-form-item label="发布状态" prop="publishStatus">
+          <el-select v-model="form.publishStatus" placeholder="请选择发布状态">
+            <el-option
+              v-for="dict in publish_status"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否推荐" prop="recommend">
+          <el-select v-model="form.recommend" placeholder="请选择是否推荐">
+            <el-option
+              v-for="dict in recommend"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="浏览数量" prop="browseNum">
           <el-input v-model="form.browseNum" placeholder="请输入浏览数量" />
-        </el-form-item>
-        <el-form-item label="创建时间" prop="createdTime">
-          <el-date-picker clearable
-            v-model="form.createdTime"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="请选择创建时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="更新时间" prop="updatedTime">
-          <el-date-picker clearable
-            v-model="form.updatedTime"
-            type="date"
-            value-format="YYYY-MM-DD"
-            placeholder="请选择更新时间">
-          </el-date-picker>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -210,10 +161,22 @@
   </div>
 </template>
 
+<style scoped>
+.description-column .cell {
+  /* 确保单行显示 */
+  white-space: nowrap;
+  /* 超出部分隐藏 */
+  overflow: hidden;
+  /* 超出部分用...表示 */
+  text-overflow: ellipsis;
+}
+</style>
+
 <script setup name="Policy">
 import { listPolicy, getPolicy, delPolicy, addPolicy, updatePolicy } from "@/api/farm/policy";
 
 const { proxy } = getCurrentInstance();
+const { recommend, publish_status } = proxy.useDict('recommend', 'publish_status');
 
 const policyList = ref([]);
 const open = ref(false);
@@ -232,14 +195,6 @@ const data = reactive({
     pageSize: 10,
     title: null,
     author: null,
-    resume: null,
-    content: null,
-    publishTime: null,
-    publishStatus: null,
-    recommend: null,
-    browseNum: null,
-    createdTime: null,
-    updatedTime: null
   },
   rules: {
     title: [
@@ -247,6 +202,12 @@ const data = reactive({
     ],
     author: [
       { required: true, message: "作者/来源不能为空", trigger: "blur" }
+    ],
+    publishStatus: [
+      { required: true, message: "发布状态不能为空", trigger: "change" }
+    ],
+    recommend: [
+      { required: true, message: "是否推荐不能为空", trigger: "change" }
     ],
   }
 });
