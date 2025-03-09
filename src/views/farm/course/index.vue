@@ -5,7 +5,7 @@
         <el-input v-model="queryParams.title" placeholder="请输入课程标题" clearable @keyup.enter="handleQuery" style="width: 120px;" />
       </el-form-item>
       <el-form-item label="专家" prop="expertId">
-        <el-input v-model="queryParams.expertId" placeholder="请输入专家" clearable @keyup.enter="handleQuery" style="width: 90px;" />
+        <el-input v-model="queryParams.expertId" placeholder="请输入专家" clearable @keyup.enter="handleQuery" style="width: 100px;" />
       </el-form-item>
       <el-form-item label="所属领域" prop="fieldCode">
         <el-input v-model="queryParams.fieldCode" placeholder="请输入所属领域" clearable @keyup.enter="handleQuery" style="width: 120px;" />
@@ -46,8 +46,8 @@
       <el-table-column label="课程标题" align="center" prop="title" />
       <el-table-column label="文章摘要" align="center" prop="resume" show-overflow-tooltip
         class-name="description-column" />
-      <el-table-column label="专家" align="center" prop="expertId" />
-      <el-table-column label="所属领域" align="center" prop="fieldCode" />
+      <el-table-column label="专家" align="center" prop="expertName" />
+      <el-table-column label="所属领域" align="center" prop="expertField" />
       <el-table-column label="课程封面图片" align="center" prop="image" width="100">
         <template #default="scope">
           <image-preview :src="scope.row.image" :width="50" :height="50" />

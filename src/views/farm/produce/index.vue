@@ -2,18 +2,20 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
       <el-form-item label="农产品名称" prop="title">
-        <el-input v-model="queryParams.title" placeholder="请输入农产品名称" clearable @keyup.enter="handleQuery" style="width: 150px;" />
+        <el-input v-model="queryParams.title" placeholder="请输入农产品名称" clearable @keyup.enter="handleQuery"
+          style="width: 150px" />
       </el-form-item>
       <el-form-item label="卖点摘要" prop="resume">
-        <el-input v-model="queryParams.resume" placeholder="请输入卖点摘要" clearable @keyup.enter="handleQuery" style="width: 150px;" />
+        <el-input v-model="queryParams.resume" placeholder="请输入卖点摘要" clearable @keyup.enter="handleQuery"
+          style="width: 150px" />
       </el-form-item>
       <el-form-item label="上架状态" prop="pushStatus">
-        <el-select v-model="queryParams.pushStatus" placeholder="请选择上架状态" clearable style="width: 150px;">
+        <el-select v-model="queryParams.pushStatus" placeholder="请选择上架状态" clearable style="width: 150px">
           <el-option v-for="dict in push_status" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="是否推荐" prop="recommend">
-        <el-select v-model="queryParams.recommend" placeholder="请选择是否推荐" clearable style="width: 150px;">
+        <el-select v-model="queryParams.recommend" placeholder="请选择是否推荐" clearable style="width: 150px">
           <el-option v-for="dict in recommend" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
@@ -52,11 +54,15 @@
         </template>
       </el-table-column>
       <el-table-column label="卖点摘要" align="center" prop="resume" />
-      <el-table-column label="农产品类型" align="center" prop="produceType" />
+      <el-table-column label="农产品类型" align="center" prop="produceType">
+        <template #default="scope">
+          <dict-tag :options="produce_type" :value="scope.row.produceType"/>
+        </template>
+      </el-table-column>
       <el-table-column label="价格" align="center" prop="price" />
       <el-table-column label="上架时间" align="center" prop="pushTime" width="180">
         <template #default="scope">
-          <span>{{ parseTime(scope.row.pushTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.pushTime, "{y}-{m}-{d}") }}</span>
         </template>
       </el-table-column>
       <el-table-column label="上架状态" align="center" prop="pushStatus">
@@ -81,8 +87,8 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
-      @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+      v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改农产品对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
@@ -98,6 +104,16 @@
         </el-form-item>
         <el-form-item label="所属品类" prop="catgory">
           <el-input v-model="form.catgory" placeholder="请输入所属品类" />
+        </el-form-item>
+        <el-form-item label="农产品类型" prop="produceType">
+          <el-select v-model="form.produceType" placeholder="请选择农产品类型">
+            <el-option
+              v-for="dict in produce_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="所属商户" prop="providerName">
           <el-input v-model="form.providerName" placeholder="请输入所属商户" />
@@ -137,10 +153,16 @@
 </template>
 
 <script setup name="Produce">
-import { listProduce, getProduce, delProduce, addProduce, updateProduce } from "@/api/farm/produce";
+import {
+  listProduce,
+  getProduce,
+  delProduce,
+  addProduce,
+  updateProduce,
+} from "@/api/farm/produce";
 
 const { proxy } = getCurrentInstance();
-const { recommend, push_status } = proxy.useDict('recommend', 'push_status');
+const { recommend, produce_type, push_status } = proxy.useDict('recommend', 'produce_type', 'push_status');
 
 const produceList = ref([]);
 const open = ref(false);
@@ -163,10 +185,8 @@ const data = reactive({
     recommend: null,
   },
   rules: {
-    title: [
-      { required: true, message: "农产品名称不能为空", trigger: "blur" }
-    ],
-  }
+    title: [{ required: true, message: "农产品名称不能为空", trigger: "blur" }],
+  },
 });
 
 const { queryParams, form, rules } = toRefs(data);
@@ -174,7 +194,7 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询农产品列表 */
 function getList() {
   loading.value = true;
-  listProduce(queryParams.value).then(response => {
+  listProduce(queryParams.value).then((response) => {
     produceList.value = response.rows;
     total.value = response.total;
     loading.value = false;
@@ -205,7 +225,7 @@ function reset() {
     accountId: null,
     browseNum: null,
     createdTime: null,
-    updatedTime: null
+    updatedTime: null,
   };
   proxy.resetForm("produceRef");
 }
@@ -224,7 +244,7 @@ function resetQuery() {
 
 // 多选框选中数据
 function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.id);
+  ids.value = selection.map((item) => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 }
@@ -239,8 +259,8 @@ function handleAdd() {
 /** 修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const _id = row.id || ids.value
-  getProduce(_id).then(response => {
+  const _id = row.id || ids.value;
+  getProduce(_id).then((response) => {
     form.value = response.data;
     open.value = true;
     title.value = "修改农产品";
@@ -249,16 +269,16 @@ function handleUpdate(row) {
 
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["produceRef"].validate(valid => {
+  proxy.$refs["produceRef"].validate((valid) => {
     if (valid) {
       if (form.value.id != null) {
-        updateProduce(form.value).then(response => {
+        updateProduce(form.value).then((response) => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
-        addProduce(form.value).then(response => {
+        addProduce(form.value).then((response) => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
@@ -271,19 +291,27 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _ids = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除农产品编号为"' + _ids + '"的数据项？').then(function () {
-    return delProduce(_ids);
-  }).then(() => {
-    getList();
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => { });
+  proxy.$modal
+    .confirm('是否确认删除农产品编号为"' + _ids + '"的数据项？')
+    .then(function () {
+      return delProduce(_ids);
+    })
+    .then(() => {
+      getList();
+      proxy.$modal.msgSuccess("删除成功");
+    })
+    .catch(() => { });
 }
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download('farm/produce/export', {
-    ...queryParams.value
-  }, `produce_${new Date().getTime()}.xlsx`)
+  proxy.download(
+    "farm/produce/export",
+    {
+      ...queryParams.value,
+    },
+    `produce_${new Date().getTime()}.xlsx`
+  );
 }
 
 getList();
