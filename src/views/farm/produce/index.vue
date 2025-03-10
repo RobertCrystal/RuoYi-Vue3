@@ -41,6 +41,9 @@
         <el-button type="warning" plain icon="Download" @click="handleExport"
           v-hasPermi="['farm:produce:export']">导出</el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button type="success" plain icon="Plus" @click="handleRecommend">推荐</el-button>
+      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -56,7 +59,7 @@
       <el-table-column label="卖点摘要" align="center" prop="resume" />
       <el-table-column label="农产品类型" align="center" prop="produceType">
         <template #default="scope">
-          <dict-tag :options="produce_type" :value="scope.row.produceType"/>
+          <dict-tag :options="produce_type" :value="scope.row.produceType" />
         </template>
       </el-table-column>
       <el-table-column label="价格" align="center" prop="price" />
@@ -107,12 +110,8 @@
         </el-form-item>
         <el-form-item label="农产品类型" prop="produceType">
           <el-select v-model="form.produceType" placeholder="请选择农产品类型">
-            <el-option
-              v-for="dict in produce_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            ></el-option>
+            <el-option v-for="dict in produce_type" :key="dict.value" :label="dict.label"
+              :value="dict.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="所属商户" prop="providerName">
@@ -159,6 +158,7 @@ import {
   delProduce,
   addProduce,
   updateProduce,
+  recommendProduce
 } from "@/api/farm/produce";
 
 const { proxy } = getCurrentInstance();
@@ -312,6 +312,17 @@ function handleExport() {
     },
     `produce_${new Date().getTime()}.xlsx`
   );
+}
+
+/** 推荐按钮操作 */
+function handleRecommend(row) {
+  const _ids = row.id || ids.value;
+  proxy.$modal.confirm("是否推荐该商品？").then(function () {
+    return recommendProduce(_ids);
+  }).then(() => {
+    getList();
+    proxy.$modal.msgSuccess("推荐成功");
+  }).catch(() => { });
 }
 
 getList();

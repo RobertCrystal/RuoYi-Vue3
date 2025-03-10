@@ -42,3 +42,11 @@ export function delProduce(id) {
     method: 'delete'
   })
 }
+
+// 推荐
+export function recommendProduce(id) {
+  return request({
+    url: '/farm/produce/recommend/' + id,
+    method: 'put'
+  })
+}
