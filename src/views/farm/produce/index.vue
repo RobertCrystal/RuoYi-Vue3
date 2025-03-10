@@ -44,6 +44,9 @@
       <el-col :span="1.5">
         <el-button type="success" plain icon="Plus" @click="handleRecommend">推荐</el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button type="danger" plain icon="Minus" @click="handleNotRecommend">取消推荐</el-button>
+      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -158,7 +161,8 @@ import {
   delProduce,
   addProduce,
   updateProduce,
-  recommendProduce
+  recommendProduce,
+  notRecommendProduce
 } from "@/api/farm/produce";
 
 const { proxy } = getCurrentInstance();
@@ -317,11 +321,22 @@ function handleExport() {
 /** 推荐按钮操作 */
 function handleRecommend(row) {
   const _ids = row.id || ids.value;
-  proxy.$modal.confirm("是否推荐该商品？").then(function () {
+  proxy.$modal.confirm("是否推荐所选商品？").then(function () {
     return recommendProduce(_ids);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("推荐成功");
+  }).catch(() => { });
+}
+
+/** 取消推荐按钮操作 */
+function handleNotRecommend(row) {
+  const _ids = row.id || ids.value;
+  proxy.$modal.confirm("是否取消推荐所选商品？").then(function () {
+    return notRecommendProduce(_ids);
+  }).then(() => {
+    getList();
+    proxy.$modal.msgSuccess("取消推荐成功");
   }).catch(() => { });
 }
 

@@ -50,3 +50,11 @@ export function recommendProduce(id) {
     method: 'put'
   })
 }
+
+// 取消推荐
+export function notRecommendProduce(id) {
+  return request({
+    url: '/farm/produce/not-recommend/' + id,
+    method: 'put'
+  })
+}
